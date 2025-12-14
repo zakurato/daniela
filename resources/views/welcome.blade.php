@@ -114,7 +114,7 @@ const bgMusic = document.getElementById("bgMusic");
   const LINE_SHADOW = 12;
   const PARTICLE_SHADOW = 8;
   const FADE_ALPHA = 0.28;
-  const HEART_SPEED = 0.0025;
+  const HEART_SPEED = 0.0010;
 
   const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
 
@@ -293,7 +293,7 @@ const bgMusic = document.getElementById("bgMusic");
 let showOnlyBackground = false;
 
 
-  const message = "Quiero compartir el resto de mi vida contigo de verdad, te amo mucho, eres la mejor persona que he conocido y me gustaria pedirte...";
+  const message = "Quiero compartir el resto de mi vida contigo de verdad te amo mucho, eres la mejor persona que he conocido y me gustaria pedirte...";
   let typingStarted = false;
 
   function startTyping() {
@@ -388,6 +388,18 @@ window.addEventListener("click", () => {
   bgMusic.volume = 0.5; // volumen (0 a 1)
   bgMusic.play().catch(() => {});
 });
+
+function startMusic() {
+  if (musicStarted) return;
+  musicStarted = true;
+
+  bgMusic.volume = 0.5;
+  bgMusic.play().catch(() => {});
+}
+
+window.addEventListener("click", startMusic);
+window.addEventListener("touchstart", startMusic);
+
 
 </script>
 </body>
