@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Corazón Neón Optimizado</title>
+<title>Daniela y Steven</title>
 
 <style>
 html, body {
@@ -69,27 +69,52 @@ canvas {
 
 <body>
 <canvas id="canvas"></canvas>
+<audio id="bgMusic" src="musica.mp3" preload="auto"></audio>
 
 <!-- ✅ Texto abajo -->
 <div id="loveText" class="love-text">
   <span id="typeTarget"></span>
 </div>
 
+
+<!-- ✅ Texto final -->
+<div id="finalText" style="
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(28px, 5vw, 60px);
+  font-weight: 800;
+  color: white;
+  text-align: center;
+  text-shadow:
+    0 0 18px rgba(255,140,255,0.8),
+    0 0 35px rgba(170,90,255,0.6);
+  opacity: 0;
+  transition: opacity 1200ms ease;
+  pointer-events: none;
+">
+  ¿Quieres ser mi novia?
+</div>
+
+
 <script>
 (() => {
   const canvas = document.getElementById("canvas");
   const ctx = canvas.getContext("2d");
+const bgMusic = document.getElementById("bgMusic");
 
   /* ============================================================
      ⚙️ CONFIGURACIÓN DE RENDIMIENTO
      ============================================================ */
   const DPR_LIMIT = 1.5;
-  const MAX_PARTICLES = 420;
+  const MAX_PARTICLES = 20;
   const PARTICLES_PER_POINT = 1;
   const LINE_SHADOW = 12;
   const PARTICLE_SHADOW = 8;
   const FADE_ALPHA = 0.28;
-  const HEART_SPEED = 0.0100;
+  const HEART_SPEED = 0.0025;
 
   const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
 
@@ -263,7 +288,12 @@ canvas {
   const loveBox = document.getElementById("loveText");
   const typeTarget = document.getElementById("typeTarget");
 
-  const message = "Quiero que compartir el resto de mi vida contigo de verdad, te amo mucho, eres la mejor persona que he conocido y me gustaria pedirte que si quieres ser mi novia?";
+  const finalText = document.getElementById("finalText");
+
+let showOnlyBackground = false;
+
+
+  const message = "Quiero compartir el resto de mi vida contigo de verdad, te amo mucho, eres la mejor persona que he conocido y me gustaria pedirte...";
   let typingStarted = false;
 
   function startTyping() {
@@ -271,14 +301,28 @@ canvas {
     loveBox.style.opacity = "1";
 
     let i = 0;
-    const speedMs = 35; // velocidad de tipeo
+    const speedMs = 75; // velocidad de tipeo
 
     const timer = setInterval(() => {
       typeTarget.textContent += message[i] ?? "";
       i++;
-      if (i >= message.length) clearInterval(timer);
+      if (i >= message.length) {
+  clearInterval(timer);
+  setTimeout(showFinalQuestion, 4000);
+}
     }, speedMs);
   }
+
+  function showFinalQuestion() {
+  showOnlyBackground = true;
+
+  // Oculta texto inferior
+  loveBox.style.opacity = "0";
+
+  // Muestra texto final
+  finalText.style.opacity = "1";
+}
+
 
   /* ============================================================
      🔁 LOOP PRINCIPAL
@@ -288,6 +332,12 @@ canvas {
     ctx.fillRect(0, 0, innerWidth, innerHeight);
 
     drawStars();
+    if (showOnlyBackground) {
+  requestAnimationFrame(loop);
+  return;
+}
+
+
 
     const centerX = innerWidth * 0.5;
     const centerY = innerHeight * 0.45;
@@ -296,7 +346,7 @@ canvas {
     tProgress += HEART_SPEED;
 
     // ✅ Cuando el corazón va por ~40% empezamos a escribir el texto
-    if (!typingStarted && tProgress >= 0.40) startTyping();
+    if (!typingStarted && tProgress >= 1) startTyping();
 
     if (tProgress > 1) {
       tProgress = 0;
@@ -327,6 +377,18 @@ canvas {
   ctx.fillRect(0, 0, innerWidth, innerHeight);
   requestAnimationFrame(loop);
 })();
+
+
+let musicStarted = false;
+
+window.addEventListener("click", () => {
+  if (musicStarted) return;
+  musicStarted = true;
+
+  bgMusic.volume = 0.5; // volumen (0 a 1)
+  bgMusic.play().catch(() => {});
+});
+
 </script>
 </body>
 </html>
