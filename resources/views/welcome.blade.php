@@ -82,9 +82,10 @@ canvas {
   position: fixed;
   inset: 0;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 16px;
+  gap: 20px;
   font-size: clamp(28px, 5vw, 60px);
   font-weight: 800;
   color: white;
@@ -96,25 +97,30 @@ canvas {
   transition: opacity 1200ms ease;
   pointer-events: none;
 ">
+  
+  <!-- Texto -->
   <span>¿Quieres ser mi novia?</span>
-  <br><br>
-  <img src="iconleon.png"
-       alt="León"
-       style="
-         width: 60px;
-         height: 60px;
-         vertical-align: middle;
-         filter: drop-shadow(0 0 12px rgba(255,140,255,0.9));
-       ">
-         <img src="iconConeja.png"
-       alt="León"
-       style="
-         width: 60px;
-         height: 60px;
-         vertical-align: middle;
-         filter: drop-shadow(0 0 12px rgba(255,140,255,0.9));
-       ">
+
+  <!-- Iconos abajo -->
+  <div style="display:flex; gap:16px; margin-top:10px;">
+    <img src="iconleon.png"
+         alt="León"
+         style="
+           width: 60px;
+           height: 60px;
+           filter: drop-shadow(0 0 12px rgba(255,140,255,0.9));
+         ">
+    <img src="iconConeja.png"
+         alt="Coneja"
+         style="
+           width: 60px;
+           height: 60px;
+           filter: drop-shadow(0 0 12px rgba(255,140,255,0.9));
+         ">
+  </div>
+
 </div>
+
 
 
 
@@ -374,7 +380,7 @@ const bgMusic = document.getElementById("bgMusic");
 let showOnlyBackground = false;
 
 
-  const message = "Quiero compartir el resto de mi vida contigo de verdad te amo mucho, eres la mejor persona que he conocido y me gustaria pedirte... ";
+  const message = "Mi amor quiero compartir el resto de mi vida contigo de verdad te amo mucho, eres la mejor persona que he conocido y me gustaria pedirte... ";
   let typingStarted = false;
 
   function startTyping() {
