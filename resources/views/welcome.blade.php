@@ -97,6 +97,7 @@ canvas {
   pointer-events: none;
 ">
   <span>¿Quieres ser mi novia?</span>
+  <br><br>
   <img src="iconleon.png"
        alt="León"
        style="
