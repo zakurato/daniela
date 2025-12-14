@@ -84,6 +84,7 @@ canvas {
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 16px;
   font-size: clamp(28px, 5vw, 60px);
   font-weight: 800;
   color: white;
@@ -95,8 +96,25 @@ canvas {
   transition: opacity 1200ms ease;
   pointer-events: none;
 ">
-  ¿Quieres ser mi novia?
+  <span>¿Quieres ser mi novia?</span>
+  <img src="iconleon.png"
+       alt="León"
+       style="
+         width: 60px;
+         height: 60px;
+         vertical-align: middle;
+         filter: drop-shadow(0 0 12px rgba(255,140,255,0.9));
+       ">
+         <img src="iconConeja.png"
+       alt="León"
+       style="
+         width: 60px;
+         height: 60px;
+         vertical-align: middle;
+         filter: drop-shadow(0 0 12px rgba(255,140,255,0.9));
+       ">
 </div>
+
 
 
 <script>
