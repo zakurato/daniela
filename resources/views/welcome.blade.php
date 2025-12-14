@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Corazón Neón Optimizado</title>
+
+<style>
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  background: #05030a;
+  overflow: hidden;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+canvas {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+}
+
+/* ✅ Texto abajo */
+.love-text {
+  position: fixed;
+  left: 50%;
+  bottom: 52px;
+  transform: translateX(-50%);
+  width: min(92vw, 900px);
+  text-align: center;
+  line-height: 1.25;
+  padding: 14px 16px;
+  border-radius: 14px;
+
+  color: rgba(255,255,255,0.92);
+  font-size: clamp(16px, 2.4vw, 28px);
+  font-weight: 700;
+
+  /* Glow */
+  text-shadow:
+    0 0 10px rgba(180,90,255,0.45),
+    0 0 18px rgba(170,90,255,0.30);
+
+  /* Fondo sutil */
+  background: rgba(25, 10, 40, 0.22);
+  backdrop-filter: blur(6px);
+
+  opacity: 0;
+  transition: opacity 600ms ease;
+}
+
+/* Cursor tipo máquina de escribir */
+.love-text .cursor {
+  display: inline-block;
+  width: 10px;
+  margin-left: 4px;
+  border-right: 2px solid rgba(255,255,255,0.85);
+  height: 1.1em;
+  transform: translateY(2px);
+  animation: blink 0.8s steps(2, start) infinite;
+}
+
+@keyframes blink {
+  50% { opacity: 0; }
+}
+</style>
+</head>
+
+<body>
+<canvas id="canvas"></canvas>
+
+<!-- ✅ Texto abajo -->
+<div id="loveText" class="love-text">
+  <span id="typeTarget"></span>
+</div>
+
+<script>
+(() => {
+  const canvas = document.getElementById("canvas");
+  const ctx = canvas.getContext("2d");
+
+  /* ============================================================
+     ⚙️ CONFIGURACIÓN DE RENDIMIENTO
+     ============================================================ */
+  const DPR_LIMIT = 1.5;
+  const MAX_PARTICLES = 420;
+  const PARTICLES_PER_POINT = 1;
+  const LINE_SHADOW = 12;
+  const PARTICLE_SHADOW = 8;
+  const FADE_ALPHA = 0.28;
+  const HEART_SPEED = 0.0100;
+
+  const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
+
+  /* ============================================================
+     📐 RESIZE
+     ============================================================ */
+  function resize() {
+    const dpr = Math.min(window.devicePixelRatio || 1, DPR_LIMIT);
+    canvas.width = innerWidth * dpr;
+    canvas.height = innerHeight * dpr;
+    canvas.style.width = innerWidth + "px";
+    canvas.style.height = innerHeight + "px";
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  window.addEventListener("resize", resize);
+  resize();
+
+  /* ============================================================
+     ⭐ ESTRELLAS
+     ============================================================ */
+  const stars = [];
+  function createStars(count = 350) {
+    stars.length = 0;
+    for (let i = 0; i < count; i++) {
+      stars.push({
+        x: Math.random() * innerWidth,
+        y: Math.random() * innerHeight,
+        r: Math.random() * 1.2,
+        a: Math.random() * 0.8 + 0.1
+      });
+    }
+  }
+  createStars();
+
+  function drawStars() {
+    ctx.save();
+    ctx.globalCompositeOperation = "source-over";
+    ctx.fillStyle = "#bfa9ff";
+    for (const s of stars) {
+      ctx.globalAlpha = s.a;
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+    ctx.globalAlpha = 1;
+  }
+
+  /* ============================================================
+     💜 CORAZÓN PRECALCULADO
+     ============================================================ */
+  const heartPath = [];
+  const STEPS = 600;
+
+  for (let i = 0; i <= STEPS; i++) {
+    const t = i / STEPS;
+    const a = t * Math.PI * 2;
+    const x = 16 * Math.pow(Math.sin(a), 3);
+    const y = 13 * Math.cos(a)
+            - 5 * Math.cos(2 * a)
+            - 2 * Math.cos(3 * a)
+            - Math.cos(4 * a);
+    heartPath.push({ x: x / 18, y: -y / 20 });
+  }
+
+  /* ============================================================
+     ✨ PARTÍCULAS
+     ============================================================ */
+  const particles = [];
+
+  function spawnParticles(x, y) {
+    const count = isMobile ? 2 : PARTICLES_PER_POINT;
+
+    for (let i = 0; i < count; i++) {
+      const ang = Math.random() * Math.PI * 2;
+      const sp = Math.random() * 1.8 + 0.4;
+
+      particles.push({
+        x, y,
+        vx: Math.cos(ang) * sp,
+        vy: Math.sin(ang) * sp,
+        life: Math.random() * 40 + 30,
+        max: 0,
+        r: Math.random() * 1.8 + 0.6,
+        a: Math.random() * 0.6 + 0.4
+      });
+
+      particles[particles.length - 1].max =
+        particles[particles.length - 1].life;
+    }
+
+    if (particles.length > MAX_PARTICLES) {
+      particles.splice(0, particles.length - MAX_PARTICLES);
+    }
+  }
+
+  function updateParticles() {
+    for (let i = particles.length - 1; i >= 0; i--) {
+      const p = particles[i];
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vx *= 0.985;
+      p.vy *= 0.985;
+      p.life--;
+
+      if (p.life <= 0) particles.splice(i, 1);
+    }
+  }
+
+  function drawParticles() {
+    ctx.save();
+    ctx.globalCompositeOperation = "lighter";
+    ctx.shadowColor = "rgba(170,90,255,0.8)";
+    ctx.shadowBlur = PARTICLE_SHADOW;
+
+    for (const p of particles) {
+      const k = p.life / p.max;
+      ctx.globalAlpha = p.a * k;
+      ctx.fillStyle = "rgba(160,90,255,1)";
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    ctx.restore();
+    ctx.globalAlpha = 1;
+  }
+
+  /* ============================================================
+     💖 TRAZO DEL CORAZÓN
+     ============================================================ */
+  let tProgress = 0;
+  let drawnPoints = [];
+
+  function drawHeart() {
+    if (drawnPoints.length < 2) return;
+
+    const cx = innerWidth * 0.5;
+    const cy = innerHeight * 0.45;
+
+    const grad = ctx.createLinearGradient(
+      cx - 200, cy - 200,
+      cx + 200, cy + 200
+    );
+    grad.addColorStop(0, "rgba(255,140,255,0.9)");
+    grad.addColorStop(0.5, "rgba(170,90,255,0.9)");
+    grad.addColorStop(1, "rgba(120,60,255,0.9)");
+
+    ctx.save();
+    ctx.globalCompositeOperation = "lighter";
+    ctx.strokeStyle = grad;
+    ctx.lineWidth = 3.5;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.shadowColor = "rgba(180,90,255,0.9)";
+    ctx.shadowBlur = LINE_SHADOW;
+
+    ctx.beginPath();
+    ctx.moveTo(drawnPoints[0].x, drawnPoints[0].y);
+    for (let i = 1; i < drawnPoints.length; i++) {
+      ctx.lineTo(drawnPoints[i].x, drawnPoints[i].y);
+    }
+    ctx.stroke();
+
+    ctx.restore();
+  }
+
+  /* ============================================================
+     💬 TEXTO TIPO "ESCRIBIENDO"
+     ============================================================ */
+  const loveBox = document.getElementById("loveText");
+  const typeTarget = document.getElementById("typeTarget");
+
+  const message = "Quiero que compartir el resto de mi vida contigo de verdad, te amo mucho, eres la mejor persona que he conocido y me gustaria que seas mi novia?";
+  let typingStarted = false;
+
+  function startTyping() {
+    typingStarted = true;
+    loveBox.style.opacity = "1";
+
+    let i = 0;
+    const speedMs = 35; // velocidad de tipeo
+
+    const timer = setInterval(() => {
+      typeTarget.textContent += message[i] ?? "";
+      i++;
+      if (i >= message.length) clearInterval(timer);
+    }, speedMs);
+  }
+
+  /* ============================================================
+     🔁 LOOP PRINCIPAL
+     ============================================================ */
+  function loop() {
+    ctx.fillStyle = `rgba(5,3,10,${FADE_ALPHA})`;
+    ctx.fillRect(0, 0, innerWidth, innerHeight);
+
+    drawStars();
+
+    const centerX = innerWidth * 0.5;
+    const centerY = innerHeight * 0.45;
+    const scale = Math.min(innerWidth, innerHeight) * 0.22;
+
+    tProgress += HEART_SPEED;
+
+    // ✅ Cuando el corazón va por ~40% empezamos a escribir el texto
+    if (!typingStarted && tProgress >= 0.40) startTyping();
+
+    if (tProgress > 1) {
+      tProgress = 0;
+      drawnPoints = [];
+      // Opcional: si querés que el texto se reinicie cada vez, descomenta:
+      // typingStarted = false;
+      // typeTarget.textContent = "";
+      // loveBox.style.opacity = "0";
+    }
+
+    const idx = Math.floor(tProgress * STEPS);
+    const p = heartPath[idx];
+
+    const x = centerX + p.x * scale;
+    const y = centerY + p.y * scale;
+
+    drawnPoints.push({ x, y });
+    spawnParticles(x, y);
+
+    drawHeart();
+    updateParticles();
+    drawParticles();
+
+    requestAnimationFrame(loop);
+  }
+
+  ctx.fillStyle = "#05030a";
+  ctx.fillRect(0, 0, innerWidth, innerHeight);
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
