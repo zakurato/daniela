@@ -389,6 +389,18 @@ window.addEventListener("click", () => {
   bgMusic.play().catch(() => {});
 });
 
+function startMusic() {
+  if (musicStarted) return;
+  musicStarted = true;
+
+  bgMusic.volume = 0.5;
+  bgMusic.play().catch(() => {});
+}
+
+window.addEventListener("click", startMusic);
+window.addEventListener("touchstart", startMusic);
+
+
 </script>
 </body>
 </html>
