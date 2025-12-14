@@ -149,6 +149,68 @@ const bgMusic = document.getElementById("bgMusic");
   }
   createStars();
 
+
+
+    /* ============================================================
+     ☄️ ESTRELLAS FUGACES
+     ============================================================ */
+  const shootingStars = [];
+
+  function spawnShootingStar() {
+    if (shootingStars.length > 2) return;
+
+    const startX = Math.random() * innerWidth * 0.8;
+    const startY = Math.random() * innerHeight * 0.3;
+
+    shootingStars.push({
+      x: startX,
+      y: startY,
+      vx: Math.random() * 6 + 6,
+      vy: Math.random() * 3 + 3,
+      life: 60 + Math.random() * 40,
+      alpha: 1
+    });
+  }
+
+  function updateShootingStars() {
+    for (let i = shootingStars.length - 1; i >= 0; i--) {
+      const s = shootingStars[i];
+      s.x += s.vx;
+      s.y += s.vy;
+      s.life--;
+      s.alpha = s.life / 100;
+
+      if (
+        s.life <= 0 ||
+        s.x > innerWidth + 100 ||
+        s.y > innerHeight + 100
+      ) {
+        shootingStars.splice(i, 1);
+      }
+    }
+  }
+
+  function drawShootingStars() {
+    ctx.save();
+    ctx.globalCompositeOperation = "lighter";
+    ctx.strokeStyle = "rgba(200,160,255,0.9)";
+    ctx.shadowColor = "rgba(200,160,255,1)";
+    ctx.shadowBlur = 12;
+    ctx.lineWidth = 2;
+
+    for (const s of shootingStars) {
+      ctx.globalAlpha = s.alpha;
+      ctx.beginPath();
+      ctx.moveTo(s.x, s.y);
+      ctx.lineTo(s.x - s.vx * 4, s.y - s.vy * 4);
+      ctx.stroke();
+    }
+
+    ctx.restore();
+    ctx.globalAlpha = 1;
+  }
+
+
   function drawStars() {
     ctx.save();
     ctx.globalCompositeOperation = "source-over";
@@ -293,7 +355,7 @@ const bgMusic = document.getElementById("bgMusic");
 let showOnlyBackground = false;
 
 
-  const message = "Quiero compartir el resto de mi vida contigo de verdad te amo mucho, eres la mejor persona que he conocido y me gustaria pedirte...";
+  const message = "Quiero compartir el resto de mi vida contigo de verdad te amo mucho, eres la mejor persona que he conocido y me gustaria pedirte... ";
   let typingStarted = false;
 
   function startTyping() {
@@ -332,6 +394,12 @@ let showOnlyBackground = false;
     ctx.fillRect(0, 0, innerWidth, innerHeight);
 
     drawStars();
+        // ☄️ Estrellas fugaces ocasionales
+    if (Math.random() < 0.008) spawnShootingStar();
+
+    updateShootingStars();
+    drawShootingStars();
+
     if (showOnlyBackground) {
   requestAnimationFrame(loop);
   return;
