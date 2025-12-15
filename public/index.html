@@ -122,8 +122,6 @@ canvas {
 </div>
 
 
-
-
 <script>
 (() => {
   const canvas = document.getElementById("canvas");
@@ -474,25 +472,16 @@ let showOnlyBackground = false;
 
 let musicStarted = false;
 
-window.addEventListener("click", () => {
-  if (musicStarted) return;
-  musicStarted = true;
-
-  bgMusic.volume = 0.5; // volumen (0 a 1)
-  bgMusic.play().catch(() => {});
-});
-
 function startMusic() {
   if (musicStarted) return;
   musicStarted = true;
 
-  bgMusic.volume = 0.5;
+  bgMusic.volume = 1;
   bgMusic.play().catch(() => {});
 }
 
 window.addEventListener("click", startMusic);
 window.addEventListener("touchstart", startMusic);
-
 
 </script>
 </body>
